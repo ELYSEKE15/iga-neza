@@ -1,0 +1,24 @@
+:root{
+    --green:hsl(144, 33%, 18%);
+    --cream:hsl(41, 55%, 92%);
+    --clay:hsl(10, 56%, 51%);
+    --sun:hsl(39, 88%, 58%);
+}
+
+body{
+    margin: 0;
+    padding:2rem;
+    background:var(--cream);
+    color:var(--green);
+    font-family : "DM Sans", sans-serif;
+}
+h1,h2{
+    font-family: "Fraunces", serif;
+}
+.card{
+    background:var(--green);
+    color:var(--cream);
+    border-radius: 20px;
+    padding:1.5rem;
+    max-width:320px;
+}
