@@ -11,7 +11,7 @@ app.use(helmet());
 app.use(express.json({limit:"10kb"}));
 app.use(express.static(path.join(__dirname,"..","public")));
 
-app.get("/api/health" , (req,res) =>{
+app.get("/api/notes" , (req,res) =>{
     res.json({status:"ok"});
 });
 
