@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
+const  requireAuth =require("../middleware/auth");
 const router = express.Router();
 
 const loginLimit = rateLimit({
@@ -75,5 +76,22 @@ router.post("/login",loginLimit,async(req,res)=>{
         })
     }
 });
+
+router.get('/me',requireAuth, async(req,res)=>{
+    try{
+      const user =await User.findById(req.userId).select("-password");
+      if(!user){
+        return res.status(401).json({error:"Not authorized"})
+      }
+      else{
+        return res.status(200).json({message:"you found"})
+      }
+    }
+    catch(error){
+        return res.status(500).json({
+                error:"something went wrong"
+        })
+    }
+})
 
 module.exports = router;
