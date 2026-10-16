@@ -13,6 +13,7 @@ app.use("/api/auth",require("./routes/auth"));
 app.use("/api/subject",require("./routes/subjects"));
 app.use("/api/sessions",require("./routes/session"));
 app.use(express.static(path.join(__dirname,"..","public")));
+app.use("/api/progress", require("./routes/progress"));
 
 app.get("/api/notes" , (req,res) =>{
     res.json({status:"ok"});
