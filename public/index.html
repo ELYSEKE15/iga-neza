@@ -4,13 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iga Neza</title>
-    <link rel="stylesheet" href="/iga-neza/public/css/styles.css">
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
     <h1>Iga Neza</h1>
-    <div class="card">
-        <h2>python</h2>
-        <p>0 hours this week</p>
-    </div>
+    <p>Study well.</p>
+    <section class="register-card">
+        <h2>Register</h2>
+        <input type="text" id="reg-name" placeholder=" Enter your Name" maxlength="50" required>
+        <input type="text" id="reg-email" placeholder="Enter your Email" required>
+        <input type="text" id="reg-password" placeholder="Enter your Password (8+ characters)" required>
+        <button id="reg-btn">Create account</button>
+    </section>
+    <section class="login-card">
+        <h2>Log in</h2>
+        <input type="text" id="log-email" placeholder="Enter your Email" required>
+        <input type="text" id="log-password" placeholder="Enter your Passeword" required>
+        <button id="log-btn">Log in</button>
+    </section>
+    <p id="message"></p>
+    <script src="./js/auth.js"></script>
 </body>
 </html>
