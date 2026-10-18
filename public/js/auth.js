@@ -62,16 +62,17 @@ document.getElementById('log-btn').addEventListener("click",async()=>{
         });
         if(!ok){
             show(body.error || "login failed");
+            clearInputs(["log-password"]);
             return;
         }
-        clearInputs(["log_password"]);
-        
-            localStorage.setItem("token",body.token);
-            show("logged in as " + body.user.name);
+        localStorage.setItem("token",body.token);
+        clearInputs(["log-email","log-password"]);
+        show("logged in as " + body.user.name);
+        window.location.href = "dashboard.html";
 
     }
     catch(error){
-        show("Could  not reach the server");
         console.error(error);
+        show("Could  not reach the server");
     }
 });

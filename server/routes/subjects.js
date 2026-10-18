@@ -32,10 +32,8 @@ router.post('/',requireAuth,async(req,res)=>{
 
 router.get('/',requireAuth,async(req,res)=>{
     try{
-        const subject = await Subject.findOne({subject1:Subject.weeklyGoalHours});
-        if(subject){
-            return res.status(201).json({owner:req.userId})
-        }
+        const subjects = (await Subject.find({owner : req.userId})).sort({createdAt:-1});
+        res.json(subjects);
     }
     catch(err){
         console.error(err.message);

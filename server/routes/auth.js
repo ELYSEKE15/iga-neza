@@ -59,12 +59,13 @@ router.post("/login",loginLimit,async(req,res)=>{
         const user = await User.findOne({
             email:email.toLowerCase().trim()
         });
+        const BAD_LOGIN="Invalid email or password";
         if(!user){
-            return res.status(401).json({error:"invalid email or password"}) 
+            return res.status(401).json({error:BAD_LOGIN});
         }
         const ismatch = await bcrypt.compare(password,user.password);
         if(!ismatch){
-            return res.status(401).json({error:"Invalid email or password"})
+            return res.status(401).json({error:BAD_LOGIN});
         }
         const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn : "7d"} );
         return res.status(200).json({token,user:{id:user._id,name:user.name,email:user.email}});
@@ -83,14 +84,11 @@ router.get('/me',requireAuth, async(req,res)=>{
       if(!user){
         return res.status(401).json({error:"Not authorized"})
       }
-      else{
-        return res.status(200).json({message:"you found"})
-      }
+      res.json(user);
     }
     catch(error){
-        return res.status(500).json({
-                error:"something went wrong"
-        })
+        console.error(error.message);
+        res.status(500).json({error:"something went wrong"});
     }
 })
 

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iga Neza | Dashboard</title>
+    <link rel="stylesheet" href="./css/dashboard.css">
+</head>
+
+<body>
+    <header class="top">
+        <h1>Iga Neza</h1>
+        <button id="logout-btn">Log out</button>
+    </header>
+    <main>
+        <h2>This week</h2>
+        <div id="progress-list"></div>
+        <p id="message" role="status"></p>
+        <section class="add-card">
+            <h2>Add subject</h2>
+            <label for="sub-name">Subject name</label>
+            <input type="text" id="sub-name" maxlength="50">
+            <label for="sub-hours">Weekly goal in hours</label>
+            <input type="number" id="sub-hours" min="1" max="40" step="1">
+            <button id="sub-btn">Add</button>
+        </section>
+        <section class="add-card">
+            <h2>Log a study session </h2>
+            <label for="ses-subject">Subject</label>
+            <select name="" id="ses-subject"></select>
+            <label for="ses-minutes">Minutes</label>
+            <input type="number" id="ses-minutes" min="1" max="600" step="1">
+            <label for="ses-notes">Note (optional)</label>
+            <input type="text" id="ses-notes" maxlength="200">
+            <button id="ses-btn">Log session</button>
+        </section>
+    </main>
+    <script src="./js/dashboard.js"></script>
+</body>
+
+</html>
