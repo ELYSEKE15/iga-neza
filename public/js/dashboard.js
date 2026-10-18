@@ -30,6 +30,39 @@ async function api(path, options = {}) {
     }
     return { ok: res.ok, body: await res.json() };
 }
+const summaryEl =document.getElementById('summary');
+function formatMinutes(total){
+    const h = Math.floor(total / 60);
+    const m = total % 60;
+    if(h==0) return m + " min";
+    return m===0 ? h + " h" : h + " h " + m + " min";
+}
+function addStat(label,value){
+    const box = document.createElement("div");
+    box.className  = "stat";
+    const big = document.createElement("strong");
+    big.textContent = value;
+    const small = document.createElement("span");
+    small.textContent = label;
+    box.appendChild(big);
+    box.appendChild(small);
+    summaryEl.appendChild(box);
+}
+function makeBlocks(goalHours, studiedMinutes) {
+    const blocks = document.createElement("div");
+    blocks.className = "blocks";
+    for (let i = 0; i < goalHours; i++) {
+        const block = document.createElement("div");
+        block.className = "block";
+        const fill = document.createElement("div");
+        fill.className = "block-fill";
+        const share = Math.min(1, Math.max(0, (studiedMinutes - i * 60) / 60));
+        fill.style.width = share * 100 + "%";
+        block.appendChild(fill);
+        blocks.appendChild(block);
+    }
+    return blocks;
+}
 async function loadprogress() {
     const result = await api("/api/progress");
     if (!result) return;
@@ -40,31 +73,57 @@ async function loadprogress() {
     const data = result.body;
     progressList.textContent = "";
     sesSubject.textContent = "";
+    summaryEl.textContent = "";
+
+    if (data.length === 0) {
+        const empty = document.createElement("p");
+        empty.textContent = "No subjects yet. Add your first one on the right.";
+        progressList.appendChild(empty);
+        return;
+    }
+
+    let totalMinutes = 0;
+    let lowest = data[0];
     for (const item of data) {
-        const card = document.createElement("div");
-        card.className = "hill-card";
+        totalMinutes += item.studiedMinutes;
+        if (item.percent < lowest.percent) lowest = item;
+    }
+    addStat("Studied this week", formatMinutes(totalMinutes));
+    addStat("Subjects", String(data.length));
+    addStat("Needs attention", lowest.percent >= 100 ? "All goals reached" : lowest.name);
+
+    for (const item of data) {
+        const row = document.createElement("article");
+        row.className = "row";
+        if (data.length > 1 && item === lowest && item.percent < 100) {
+            row.classList.add("low");
+        }
+
+        const pct = document.createElement("div");
+        pct.className = "pct";
+        pct.textContent = item.percent + "%";
+
+        const info = document.createElement("div");
+        info.className = "info";
         const title = document.createElement("h3");
         title.textContent = item.name;
-        const bar = document.createElement("div");
-        bar.className = "bar";
-        const fill = document.createElement("div");
-        fill.className = "bar-fill";
-        fill.style.width = item.percent + "%";
         const label = document.createElement("p");
-        label.textContent = item.studiedMinutes + " min of " + item.goalHours * 60;
-        bar.appendChild(fill);
-        card.appendChild(title);
-        card.appendChild(bar);
-        card.appendChild(label);
-        progressList.appendChild(card);
+        label.textContent = formatMinutes(item.studiedMinutes) + " of " + formatMinutes(item.goalHours * 60);
+
+        info.appendChild(title);
+        info.appendChild(makeBlocks(item.goalHours, item.studiedMinutes));
+        info.appendChild(label);
+        row.appendChild(pct);
+        row.appendChild(info);
+        progressList.appendChild(row);
+
         const option = document.createElement("option");
         option.value = item.subjectId;
         option.textContent = item.name;
         sesSubject.appendChild(option);
-
+        // return blocks;
     }
 }
-
 document.getElementById('sub-btn').addEventListener("click", async () => {
     const name = document.getElementById('sub-name').value;
     const hours = document.getElementById('sub-hours').value;
@@ -133,10 +192,18 @@ document.getElementById("ses-btn").addEventListener("click", async () => {
         }
         clearInput(["ses-minutes","ses-notes"]);
         show("session logged");
+        document.getElementById("side-log").check = true;
         await loadprogress();
     }
     catch (error) {
         show("Could not reach the server");
         console.error(error);
     }
-})
+});
+
+document.getElementById("logout-btn").addEventListener("click",async()=>{
+    localStorage.removeItem("token");
+    window.location.href="index.html";
+});
+
+
