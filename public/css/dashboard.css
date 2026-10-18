@@ -154,6 +154,19 @@ body {
     box-shadow: 0 4px 0 var(--ink);
     cursor: pointer;
 }
+.delete-btn {
+    margin-top: 0.75rem;
+    padding: 0.3rem 0.75rem;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--coral);
+    background: transparent;
+    border: 1px solid var(--coral);
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+.delete-btn:hover { background: var(--coral); color: var(--ink); }
 .side-panel button:hover { transform: translateY(2px); box-shadow: 0 2px 0 var(--ink); }
 .side-panel button:active { transform: translateY(4px); box-shadow: 0 0 0 var(--ink); }
 

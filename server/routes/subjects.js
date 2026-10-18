@@ -1,6 +1,8 @@
 const express = require("express");
 const Subject = require("../models/Subject");
 const requireAuth = require("../middleware/auth");
+const Session = require("../models/Session");
+
 
 const router = express.Router();
 
@@ -40,6 +42,25 @@ router.get("/", requireAuth, async (req, res) => {
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: "something went wrong" });
+    }
+});
+router.delete("/:id",requireAuth, async(req,res)=>{
+    try{
+        const {id} = req.params;
+        if(!mongoose.isObjectIdOrHexString(id)){
+            return res.status(400).json({eror:"invalid subject id"});
+        }
+
+        const subject = await Subject.findOneAndDelete({_id:id,owner:req.userId});
+        if(!subject){
+            return res.status(404).json({error:"Subject not found"});
+        }
+        await Session.deleteMany({subject:id,owner:req.userId});
+        res.json({message:"Subject deleted"});
+    }
+    catch(error){
+        console.error(err.message);
+        res.status(500).json({error:"somethign went wrong"});
     }
 });
 

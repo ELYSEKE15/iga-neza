@@ -4,6 +4,7 @@ if (!token) {
 }
 const progressList = document.getElementById("progress-list");
 const messageEl = document.getElementById("message");
+const summaryEl = document.getElementById("summary");
 const sesSubject = document.getElementById('ses-subject');
 
 function show(text) {
@@ -28,9 +29,9 @@ async function api(path, options = {}) {
         window.location.href = "index.html";
         return null;
     }
-    return { ok: res.ok, body: await res.json() };
+    const body = await res.json().catch(()=>({}));
+    return { ok: res.ok,body};
 }
-const summaryEl =document.getElementById('summary');
 function formatMinutes(total){
     const h = Math.floor(total / 60);
     const m = total % 60;
@@ -62,6 +63,26 @@ function makeBlocks(goalHours, studiedMinutes) {
         blocks.appendChild(block);
     }
     return blocks;
+}
+
+async function deleteSubject(id,name){
+    if(!window.confirm('Delete "' + '"and all its sessions?thsi cannot be undone')){
+        return;
+    }
+    try{
+        const result = await api("/api/subject" + id ,{method:DELETE});
+        if(!result) return;
+        if(result.ok){
+            show(result.body.error || "Could not delete");
+            return;
+        }
+        show("Subject deleted");
+        await loadprogress();
+    }
+    catch(error){
+        show("Could not reach the server");
+        console.error(error);
+    }
 }
 async function loadprogress() {
     const result = await api("/api/progress");
@@ -110,9 +131,19 @@ async function loadprogress() {
         const label = document.createElement("p");
         label.textContent = formatMinutes(item.studiedMinutes) + " of " + formatMinutes(item.goalHours * 60);
 
+
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "delete-btn";
+        del.textContent = "Delete";
+        del.setAttribute("aria-label", "delete " + item.name);
+        
+        del.addEventListener("click",()=>deleteSubject(item-subjectId,item.name));
         info.appendChild(title);
         info.appendChild(makeBlocks(item.goalHours, item.studiedMinutes));
         info.appendChild(label);
+        info.appendChild(del);
         row.appendChild(pct);
         row.appendChild(info);
         progressList.appendChild(row);
@@ -121,15 +152,13 @@ async function loadprogress() {
         option.value = item.subjectId;
         option.textContent = item.name;
         sesSubject.appendChild(option);
-        // return blocks;
     }
 }
 document.getElementById('sub-btn').addEventListener("click", async () => {
     const name = document.getElementById('sub-name').value;
-    const hours = document.getElementById('sub-hours').value;
-    const convertHours = Number(hours);
+    const hours = Number(document.getElementById('sub-hours').value);
 
-    if (!name || !convertHours) {
+    if (!name || !hours) {
         show("all field are required");
         return;
     }
@@ -139,7 +168,7 @@ document.getElementById('sub-btn').addEventListener("click", async () => {
             method: "POST",
             body: JSON.stringify(
                 {
-                    name: name, weeklyGoalHours: convertHours
+                    name: name, weeklyGoalHours: hours
                 }
             ),
         });
@@ -148,20 +177,16 @@ document.getElementById('sub-btn').addEventListener("click", async () => {
             show(result.body.error || "failed to create");
             return;
         }
-        document.getElementById('sub-name').value = "";
-        document.getElementById('sub-hours').value = "";
+        clearInput(["sub-name","sub-hours"]);
+        document.getElementById("side-log").checked = true;
         show("Subject added")
         await loadprogress();
-
-
     }
     catch (error) {
         show("Could not reach the server");
         console.error(error);
     }
 });
-
-loadprogress();
 
 
 document.getElementById("ses-btn").addEventListener("click", async () => {
@@ -180,19 +205,18 @@ document.getElementById("ses-btn").addEventListener("click", async () => {
     const data = {subjectId,minutes};
     if(note) data.note = note;
     try {
-    show("saving");
+    show("saving...");
         const result = await api("/api/sessions", {
             method: "POST",
             body: JSON.stringify(data)
         });
         if (!result) return;
         if (!result.ok) {
-            show(result.body.error || "failed to create ");
+            show(result.body.error || "failed to log session ");
             return;
         }
         clearInput(["ses-minutes","ses-notes"]);
-        show("session logged");
-        document.getElementById("side-log").check = true;
+        show("Session logged");
         await loadprogress();
     }
     catch (error) {
@@ -206,4 +230,4 @@ document.getElementById("logout-btn").addEventListener("click",async()=>{
     window.location.href="index.html";
 });
 
-
+if(token) loadprogress();
